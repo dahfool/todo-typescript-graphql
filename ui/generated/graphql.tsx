@@ -87,12 +87,26 @@ export type CreateTaskMutationVariables = {
 
 export type CreateTaskMutation = ({ __typename?: 'Mutation' } & { createTask: Maybe<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
 
+export type TaskQueryVariables = {
+  id: Scalars['Int']
+};
+
+
+export type TaskQuery = ({ __typename?: 'Query' } & { task: Maybe<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
+
 export type TasksQueryVariables = {
   status?: Maybe<TaskStatus>
 };
 
 
 export type TasksQuery = ({ __typename?: 'Query' } & { tasks: Array<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
+
+export type UpdateTaskMutationVariables = {
+  input: UpdateTaskInput
+};
+
+
+export type UpdateTaskMutation = ({ __typename?: 'Mutation' } & { updateTask: Maybe<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
 
 
 import gql from 'graphql-tag';
@@ -117,13 +131,38 @@ export class CreateTaskComponent extends React.Component<Partial<ReactApollo.Mut
   }
 }
 export type CreateTaskProps<TChildProps = {}> = Partial<ReactApollo.MutateProps<CreateTaskMutation, CreateTaskMutationVariables>> & TChildProps;
-export type CreateTaskMutationFn = ReactApollo.MutationFunction<CreateTaskMutation, CreateTaskMutationVariables>;
+export type CreateTaskMutationFunction = ReactApollo.MutationFunction<CreateTaskMutation, CreateTaskMutationVariables>;
 export function withCreateTask<TProps, TChildProps = {}>(operationOptions: ReactApollo.OperationOption<
   TProps,
   CreateTaskMutation,
   CreateTaskMutationVariables,
   CreateTaskProps<TChildProps>> | undefined) {
     return ReactApollo.withMutation<TProps, CreateTaskMutation, CreateTaskMutationVariables, CreateTaskProps<TChildProps>>(CreateTaskDocument, operationOptions);
+};
+export const TaskDocument = gql`
+    query Task($id: Int!) {
+  task(id: $id) {
+    id
+    title
+    status
+  }
+}
+    `;
+
+export class TaskComponent extends React.Component<Partial<ReactApollo.QueryControls<TaskQuery, TaskQueryVariables>>> {
+  render() {
+      return (
+          <ReactApollo.Query<TaskQuery, TaskQueryVariables> query={TaskDocument} {...(this as any)['props'] as any} />
+      );
+  }
+}
+export type TaskProps<TChildProps = {}> = Partial<ReactApollo.DataProps<TaskQuery, TaskQueryVariables>> & TChildProps;
+export function withTask<TProps, TChildProps = {}>(operationOptions: ReactApollo.OperationOption<
+  TProps,
+  TaskQuery,
+  TaskQueryVariables,
+  TaskProps<TChildProps>> | undefined) {
+    return ReactApollo.withQuery<TProps, TaskQuery, TaskQueryVariables, TaskProps<TChildProps>>(TaskDocument, operationOptions);
 };
 export const TasksDocument = gql`
     query Tasks($status: TaskStatus) {
@@ -149,4 +188,30 @@ export function withTasks<TProps, TChildProps = {}>(operationOptions: ReactApoll
   TasksQueryVariables,
   TasksProps<TChildProps>> | undefined) {
     return ReactApollo.withQuery<TProps, TasksQuery, TasksQueryVariables, TasksProps<TChildProps>>(TasksDocument, operationOptions);
+};
+export const UpdateTaskDocument = gql`
+    mutation UpdateTask($input: UpdateTaskInput!) {
+  updateTask(input: $input) {
+    id
+    title
+    status
+  }
+}
+    `;
+
+export class UpdateTaskComponent extends React.Component<Partial<ReactApollo.MutationComponentOptions<UpdateTaskMutation, UpdateTaskMutationVariables>>> {
+  render() {
+      return (
+          <ReactApollo.Mutation<UpdateTaskMutation, UpdateTaskMutationVariables> mutation={UpdateTaskDocument} {...(this as any)['props'] as any} />
+      );
+  }
+}
+export type UpdateTaskProps<TChildProps = {}> = Partial<ReactApollo.MutateProps<UpdateTaskMutation, UpdateTaskMutationVariables>> & TChildProps;
+export type UpdateTaskMutationFunction = ReactApollo.MutationFunction<UpdateTaskMutation, UpdateTaskMutationVariables>;
+export function withUpdateTask<TProps, TChildProps = {}>(operationOptions: ReactApollo.OperationOption<
+  TProps,
+  UpdateTaskMutation,
+  UpdateTaskMutationVariables,
+  UpdateTaskProps<TChildProps>> | undefined) {
+    return ReactApollo.withMutation<TProps, UpdateTaskMutation, UpdateTaskMutationVariables, UpdateTaskProps<TChildProps>>(UpdateTaskDocument, operationOptions);
 };

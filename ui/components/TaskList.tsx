@@ -1,5 +1,6 @@
 import React from 'react'
 import { Task } from '../generated/graphql'
+import Link from 'next/link'
 
 interface Props {
     tasks: Task[]
@@ -10,7 +11,12 @@ const TaskList: React.FC<Props> = ({tasks}) => {
         <ul>
             {
                 tasks.map(({title, id})=> (
-                    <li key={id}><div className='title'>{title}</div></li>
+                    <li key={id}>
+                        <div className='title'>
+                            <Link href={`update?id=${id}`}><a>{title}</a></Link>
+                        </div>
+                        <button className='deleteButton'>&times;</button>
+                    </li>
                 ))
             }
             <style jsx>{`
