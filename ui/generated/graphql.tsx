@@ -87,6 +87,13 @@ export type CreateTaskMutationVariables = {
 
 export type CreateTaskMutation = ({ __typename?: 'Mutation' } & { createTask: Maybe<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
 
+export type DeleteTaskMutationVariables = {
+  id: Scalars['Int']
+};
+
+
+export type DeleteTaskMutation = ({ __typename?: 'Mutation' } & { deleteTask: Maybe<({ __typename?: 'Task' } & Pick<Task, 'id' | 'title' | 'status'>)> });
+
 export type TaskQueryVariables = {
   id: Scalars['Int']
 };
@@ -138,6 +145,32 @@ export function withCreateTask<TProps, TChildProps = {}>(operationOptions: React
   CreateTaskMutationVariables,
   CreateTaskProps<TChildProps>> | undefined) {
     return ReactApollo.withMutation<TProps, CreateTaskMutation, CreateTaskMutationVariables, CreateTaskProps<TChildProps>>(CreateTaskDocument, operationOptions);
+};
+export const DeleteTaskDocument = gql`
+    mutation DeleteTask($id: Int!) {
+  deleteTask(id: $id) {
+    id
+    title
+    status
+  }
+}
+    `;
+
+export class DeleteTaskComponent extends React.Component<Partial<ReactApollo.MutationComponentOptions<DeleteTaskMutation, DeleteTaskMutationVariables>>> {
+  render() {
+      return (
+          <ReactApollo.Mutation<DeleteTaskMutation, DeleteTaskMutationVariables> mutation={DeleteTaskDocument} {...(this as any)['props'] as any} />
+      );
+  }
+}
+export type DeleteTaskProps<TChildProps = {}> = Partial<ReactApollo.MutateProps<DeleteTaskMutation, DeleteTaskMutationVariables>> & TChildProps;
+export type DeleteTaskMutationFunction = ReactApollo.MutationFunction<DeleteTaskMutation, DeleteTaskMutationVariables>;
+export function withDeleteTask<TProps, TChildProps = {}>(operationOptions: ReactApollo.OperationOption<
+  TProps,
+  DeleteTaskMutation,
+  DeleteTaskMutationVariables,
+  DeleteTaskProps<TChildProps>> | undefined) {
+    return ReactApollo.withMutation<TProps, DeleteTaskMutation, DeleteTaskMutationVariables, DeleteTaskProps<TChildProps>>(DeleteTaskDocument, operationOptions);
 };
 export const TaskDocument = gql`
     query Task($id: Int!) {

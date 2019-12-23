@@ -1,21 +1,74 @@
 import React from 'react'
-import { Task } from '../generated/graphql'
+import {Task, withDeleteTask, DeleteTaskMutationFunction, TasksDocument, TasksQuery, TaskStatus, TasksQueryVariables} from '../generated/graphql'
 import Link from 'next/link'
+import { isApolloError } from 'apollo-client'
 
-interface Props {
+interface ExposedProps {
     tasks: Task[]
 }
 
-const TaskList: React.FC<Props> = ({tasks}) => {
+interface MutationProps {
+    deleteTask?: DeleteTaskMutationFunction
+}
+
+interface AllProps extends ExposedProps, MutationProps {
+
+}
+
+const TaskList: React.FC<AllProps> = ({tasks, deleteTask}) => {
+
+    const deleteById = async (id: number) => {
+        if (deleteTask) {
+            try {
+                await deleteTask({
+                    variables: { id },
+                    update: (cache, result) => {
+                        if (result.data && result.data.deleteTask) {
+                            const tasksCache = cache.readQuery<TasksQuery, TasksQueryVariables>({
+                                query: TasksDocument,
+                                variables: {status: TaskStatus.Active}
+                            })
+
+                            if (tasksCache) {
+                                cache.writeQuery<TasksQuery, TasksQueryVariables>({
+                                    query: TasksDocument,
+                                    variables: {status: TaskStatus.Active},
+                                    data: {
+                                        tasks: tasksCache.tasks.filter(task => task.id !== id)
+                                    }
+                                })
+                            }
+
+                        }
+                    }
+                })
+            } catch (e) {
+                if (isApolloError(e) && e.networkError) {
+                    alert('A network error')
+                } else {
+                    alert('try again')
+                }
+            }
+        }
+    }
+
+    const changeStatus = (id: number) => {
+
+    }
+
     return (
         <ul>
             {
                 tasks.map(({title, id})=> (
                     <li key={id}>
+                        <label className='checkbox'>
+                            <input type='checkbox' onChange={() => changeStatus(id)}/>
+                            <span />
+                        </label>
                         <div className='title'>
                             <Link href={`update?id=${id}`}><a>{title}</a></Link>
                         </div>
-                        <button className='deleteButton'>&times;</button>
+                        <button className='deleteButton' onClick={() => deleteById(id)}>&times;</button>
                     </li>
                 ))
             }
@@ -107,4 +160,6 @@ const TaskList: React.FC<Props> = ({tasks}) => {
     )
 }
 
-export default TaskList
+export default withDeleteTask<ExposedProps, MutationProps>({
+    props: ({mutate}) => ({deleteTask: mutate})
+})(TaskList)
