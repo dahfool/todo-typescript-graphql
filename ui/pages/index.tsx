@@ -14,7 +14,7 @@ interface Props extends InitialProps {}
 const IndexPage: NextPage<Props, InitialProps> = (props) => {
     return (
         <Layout>
-            <TasksComponent variables={{status: TaskStatus.Active}}>{({loading, error, data, refetch}) => {
+            <TasksComponent>{({loading, error, data, refetch}) => {
                 if (loading) {
                     return <p>loading</p>
                 } else if(error) {

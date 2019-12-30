@@ -1,5 +1,15 @@
 import React from 'react'
-import {Task, withDeleteTask, DeleteTaskMutationFunction, TasksDocument, TasksQuery, TaskStatus, TasksQueryVariables} from '../generated/graphql'
+import {
+    ChangeStatusMutationFunction,
+    DeleteTaskMutationFunction,
+    Task,
+    TasksDocument,
+    TasksQuery,
+    TasksQueryVariables,
+    TaskStatus,
+    withChangeStatus,
+    withDeleteTask
+} from '../generated/graphql'
 import Link from 'next/link'
 import { isApolloError } from 'apollo-client'
 
@@ -9,13 +19,15 @@ interface ExposedProps {
 
 interface MutationProps {
     deleteTask?: DeleteTaskMutationFunction
+    changeStatus?: ChangeStatusMutationFunction
 }
 
 interface AllProps extends ExposedProps, MutationProps {
 
 }
 
-const TaskList: React.FC<AllProps> = ({tasks, deleteTask}) => {
+const TaskList: React.FC<AllProps> = ({tasks, deleteTask,
+                                      changeStatus}) => {
 
     const deleteById = async (id: number) => {
         if (deleteTask) {
@@ -52,17 +64,28 @@ const TaskList: React.FC<AllProps> = ({tasks, deleteTask}) => {
         }
     }
 
-    const changeStatus = (id: number) => {
-
+    const changeTaskStatusById = async (id: number, status: TaskStatus) => {
+        if (changeStatus) {
+            await changeStatus({
+                variables: { id, status }
+            })
+        }
     }
 
     return (
         <ul>
             {
-                tasks.map(({title, id})=> (
+                tasks.map(({title, id, status})=> (
                     <li key={id}>
                         <label className='checkbox'>
-                            <input type='checkbox' onChange={() => changeStatus(id)}/>
+                            <input
+                                type='checkbox'
+                                checked={status === TaskStatus.Completed}
+                                onChange={ e => {
+                                    const newStatus = e.target.checked ? TaskStatus.Completed : TaskStatus.Active
+                                    changeTaskStatusById(id, newStatus)
+                                }}
+                            />
                             <span />
                         </label>
                         <div className='title'>
@@ -160,6 +183,9 @@ const TaskList: React.FC<AllProps> = ({tasks, deleteTask}) => {
     )
 }
 
-export default withDeleteTask<ExposedProps, MutationProps>({
+export default withChangeStatus<ExposedProps, MutationProps>({
+    props: ({mutate}) => ({changeStatus: mutate})
+})(
+    withDeleteTask<ExposedProps, MutationProps>({
     props: ({mutate}) => ({deleteTask: mutate})
-})(TaskList)
+})(TaskList))
