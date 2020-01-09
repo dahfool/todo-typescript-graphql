@@ -1,58 +1,56 @@
 import React, { useState } from 'react'
-import { withCreateTask, CreateTaskProps } from '../generated/graphql'
+import { useCreateTaskMutation } from '../generated/graphql'
 
 interface FormState {
-    title: string
+  title: string
 }
 
 const defaultState: FormState = {
-    title: ''
+  title: ''
 }
 
 interface ExposedProps {
-    onTaskCreated: () => void;
+  onTaskCreated: () => void;
 }
 
-type AllProps = CreateTaskProps<ExposedProps>
+const CreateTaskForm: React.FC<ExposedProps> = ({onTaskCreated }) => {
+  const [formState, setformState] = useState<FormState>(defaultState);
 
-const CreateTaskForm: React.FC<AllProps> = ({onTaskCreated, mutate}) => {
-    const [formState, setformState] = useState<FormState>(defaultState);
+  const updateValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setformState({
+      title: value
+    })
+  }
 
-    const updateValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target
-        setformState({
-            title: value
-        })
-    }
+  const [createTask] = useCreateTaskMutation()
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      if(mutate) {
-        const result = await mutate({
-          variables: {
-            input: formState
-          }
-        })
-        if(result && result.data && result.data.createTask) {
-          setformState({
-            title: ''
-          })
-        onTaskCreated()
-        }
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const result = await createTask({
+      variables: {
+        input: formState
       }
+    })
+    if (result && result.data && result.data.createTask) {
+      setformState({
+        title: ''
+      })
+      onTaskCreated()
     }
+  }
 
-    return (
-        <form onSubmit={onSubmit}>
-            <input
-                type='text'
-                placeholder='what do you want to get done ?'
-                name='title'
-                autoComplete='off'
-                value={formState.title}
-                onChange={updateValue}
-            />
-            <style jsx>{`
+  return (
+    <form onSubmit={onSubmit}>
+      <input
+        type='text'
+        placeholder='what do you want to get done ?'
+        name='title'
+        autoComplete='off'
+        value={formState.title}
+        onChange={updateValue}
+      />
+      <style jsx>{`
                 form {
                   margin: 0 0 -1px;
                 }
@@ -73,8 +71,8 @@ const CreateTaskForm: React.FC<AllProps> = ({onTaskCreated, mutate}) => {
                   z-index: 10;
                 }
             `}</style>
-        </form>
-    )
+    </form>
+  )
 }
 
-export default withCreateTask<ExposedProps>({})(CreateTaskForm)
+export default CreateTaskForm

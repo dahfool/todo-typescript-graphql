@@ -1,23 +1,17 @@
 import React, { useState } from 'react'
 import Router from 'next/router'
-import { withUpdateTask, UpdateTaskMutationFunction } from '../generated/graphql'
+import { useUpdateTaskMutation } from '../generated/graphql'
 
 interface formState {
     title: string,
     id: number
 }
 
-interface ExposedProps {
+interface Props {
     initialInput: formState
 }
 
-interface UpdateTaskMutationProps {
-    updateTask?: UpdateTaskMutationFunction
-}
-
-interface AllProps extends ExposedProps, UpdateTaskMutationProps {}
-
-const UpdateTaskForm: React.FC<AllProps> = ({ initialInput, updateTask }) => {
+const UpdateTaskForm: React.FC<Props> = ({ initialInput }) => {
 
     const [ formState, setFormState ] = useState<formState>(initialInput)
 
@@ -29,21 +23,21 @@ const UpdateTaskForm: React.FC<AllProps> = ({ initialInput, updateTask }) => {
         })
     }
 
+    const [updateTask] = useUpdateTaskMutation()
+
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         console.log(formState)
 
-        if (updateTask) {
-            const result = await updateTask({
-                variables: {
-                    input: formState
-                }
-            })
-
-            if (result && result.data && result.data.updateTask) {
-                Router.push('/')
+        const result = await updateTask({
+            variables: {
+                input: formState
             }
+        })
+
+        if (result && result.data && result.data.updateTask) {
+            Router.push('/')
         }
         console.log(formState)
     }
@@ -100,6 +94,4 @@ const UpdateTaskForm: React.FC<AllProps> = ({ initialInput, updateTask }) => {
     )
 }
 
-export default withUpdateTask<ExposedProps, UpdateTaskMutationProps>({
-    props: ({mutate}) => ({ updateTask : mutate })
-})(UpdateTaskForm)
+export default UpdateTaskForm

@@ -1,75 +1,83 @@
 import React from 'react'
 import {
-    ChangeStatusMutationFunction,
-    DeleteTaskMutationFunction,
     Task,
     TasksDocument,
     TasksQuery,
     TasksQueryVariables,
     TaskStatus,
-    withChangeStatus,
-    withDeleteTask
+    useChangeStatusMutation,
+    useDeleteTaskMutation,
 } from '../generated/graphql'
 import Link from 'next/link'
 import { isApolloError } from 'apollo-client'
+import { ITaskFilter } from './TaskFilter'
 
-interface ExposedProps {
-    tasks: Task[]
+interface Props {
+    tasks: Task[],
+    filter: ITaskFilter
 }
 
-interface MutationProps {
-    deleteTask?: DeleteTaskMutationFunction
-    changeStatus?: ChangeStatusMutationFunction
-}
+const TaskList: React.FC<Props> = ({tasks, filter}) => {
 
-interface AllProps extends ExposedProps, MutationProps {
-
-}
-
-const TaskList: React.FC<AllProps> = ({tasks, deleteTask,
-                                      changeStatus}) => {
+    const [deleteTask] = useDeleteTaskMutation()
+    const [changeStatus] = useChangeStatusMutation()
 
     const deleteById = async (id: number) => {
-        if (deleteTask) {
-            try {
-                await deleteTask({
-                    variables: { id },
-                    update: (cache, result) => {
-                        if (result.data && result.data.deleteTask) {
-                            const tasksCache = cache.readQuery<TasksQuery, TasksQueryVariables>({
+        try {
+            await deleteTask({
+                variables: { id },
+                update: (cache, result) => {
+                    if (result.data && result.data.deleteTask) {
+                        const tasksCache = cache.readQuery<TasksQuery, TasksQueryVariables>({
+                            query: TasksDocument,
+                            variables: filter
+                        })
+
+                        if (tasksCache) {
+                            cache.writeQuery<TasksQuery, TasksQueryVariables>({
                                 query: TasksDocument,
-                                variables: {status: TaskStatus.Active}
+                                variables: filter,
+                                data: {
+                                    tasks: tasksCache.tasks.filter(task => task.id !== id)
+                                }
                             })
-
-                            if (tasksCache) {
-                                cache.writeQuery<TasksQuery, TasksQueryVariables>({
-                                    query: TasksDocument,
-                                    variables: {status: TaskStatus.Active},
-                                    data: {
-                                        tasks: tasksCache.tasks.filter(task => task.id !== id)
-                                    }
-                                })
-                            }
-
                         }
+
                     }
-                })
-            } catch (e) {
-                if (isApolloError(e) && e.networkError) {
-                    alert('A network error')
-                } else {
-                    alert('try again')
                 }
+            })
+        } catch (e) {
+            if (isApolloError(e) && e.networkError) {
+                alert('A network error')
+            } else {
+                alert('try again')
             }
         }
     }
 
     const changeTaskStatusById = async (id: number, status: TaskStatus) => {
-        if (changeStatus) {
-            await changeStatus({
-                variables: { id, status }
-            })
-        }
+        await changeStatus({
+            variables: { id, status },
+            update: (cache, result) => {
+                if (filter.status && result.data && result.data.changeStatus) {
+                    const tasksCache = cache.readQuery<TasksQuery, TasksQueryVariables>({
+                        query: TasksDocument,
+                        variables: filter
+                    })
+
+                    if (tasks) {
+                        cache.writeQuery<TasksQuery, TasksQueryVariables>({
+                            query: TasksDocument,
+                            variables: filter,
+                            data: {
+                                tasks: tasksCache.tasks.filter(task => task.status === filter.status)
+                            }
+                        })
+                    }
+                }
+
+            }
+        })
     }
 
     return (
@@ -183,9 +191,5 @@ const TaskList: React.FC<AllProps> = ({tasks, deleteTask,
     )
 }
 
-export default withChangeStatus<ExposedProps, MutationProps>({
-    props: ({mutate}) => ({changeStatus: mutate})
-})(
-    withDeleteTask<ExposedProps, MutationProps>({
-    props: ({mutate}) => ({deleteTask: mutate})
-})(TaskList))
+export default TaskList
+

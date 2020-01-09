@@ -1,7 +1,7 @@
 import React from 'react'
 import App, { Container } from 'next/app'
 import withApolloClient from '../lib/with-apollo-client'
-import { ApolloProvider } from 'react-apollo'
+import { ApolloProvider } from '@apollo/react-components'
 import { ApolloClient } from 'apollo-boost'
 import { MyApolloClientCache } from '../lib/init-apollo'
 
