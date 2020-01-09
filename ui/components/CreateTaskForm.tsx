@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useCreateTaskMutation } from '../generated/graphql'
+import React, {useState} from 'react'
+import {useCreateTaskMutation} from '../generated/graphql'
 
 interface FormState {
   title: string
@@ -13,11 +13,11 @@ interface ExposedProps {
   onTaskCreated: () => void;
 }
 
-const CreateTaskForm: React.FC<ExposedProps> = ({onTaskCreated }) => {
+const CreateTaskForm: React.FC<ExposedProps> = ({onTaskCreated}) => {
   const [formState, setformState] = useState<FormState>(defaultState);
 
   const updateValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target
+    const {value} = e.target
     setformState({
       title: value
     })

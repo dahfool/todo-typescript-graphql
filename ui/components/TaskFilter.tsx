@@ -3,32 +3,32 @@ import Link from 'next/link'
 import {TaskStatus} from '../generated/graphql'
 
 export interface ITaskFilter {
-    status?: TaskStatus
+  status?: TaskStatus
 }
 
 interface Props {
-    filter: ITaskFilter
+  filter: ITaskFilter
 }
 
-const TaskFilter: React.FC<Props> = ({ filter }) => {
-    return (
-        <ul>
-            <li>
-                <Link href='/'>
-                    <a className={ !filter.status ? 'active' : undefined }>All</a>
-                </Link>
-            </li>
-            <li>
-                <Link href={{ pathname:'/', query:{status: TaskStatus.Active}}}>
-                    <a className={ filter.status === TaskStatus.Active ? 'active' : undefined }>Active</a>
-                </Link>
-            </li>
-            <li>
-                <Link href={{ pathname:'/', query:{status: TaskStatus.Completed}}}>
-                    <a className={ filter.status === TaskStatus.Completed ? 'active' : undefined }>Completed</a>
-                </Link>
-            </li>
-            <style jsx>{`
+const TaskFilter: React.FC<Props> = ({filter}) => {
+  return (
+    <ul>
+      <li>
+        <Link href='/'>
+          <a className={!filter.status ? 'active' : undefined}>All</a>
+        </Link>
+      </li>
+      <li>
+        <Link href={{pathname: '/', query: {status: TaskStatus.Active}}}>
+          <a className={filter.status === TaskStatus.Active ? 'active' : undefined}>Active</a>
+        </Link>
+      </li>
+      <li>
+        <Link href={{pathname: '/', query: {status: TaskStatus.Completed}}}>
+          <a className={filter.status === TaskStatus.Completed ? 'active' : undefined}>Completed</a>
+        </Link>
+      </li>
+      <style jsx>{`
  ul {
           list-style: none;
           display: flex;
@@ -49,9 +49,9 @@ const TaskFilter: React.FC<Props> = ({ filter }) => {
           border-bottom: 2px solid #7694f5;
         }
             `}
-            </style>
-        </ul>
-    )
+      </style>
+    </ul>
+  )
 }
 
 export default TaskFilter

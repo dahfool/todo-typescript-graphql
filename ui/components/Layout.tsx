@@ -1,18 +1,18 @@
 import React from 'react'
 import Link from 'next/link'
 
-export const Layout: React.FC = ({ children }) => {
-    return (
-        <div className='pageContainer'>
-            <div className='logo'>
-                <Link href='/'>
-                    <a>
-                        <img src='/static/image.png'/>
-                    </a>
-                </Link>
-            </div>
-            {children}
-            <style jsx global>{`
+export const Layout: React.FC = ({children}) => {
+  return (
+    <div className='pageContainer'>
+      <div className='logo'>
+        <Link href='/'>
+          <a>
+            <img src='/static/image.png'/>
+          </a>
+        </Link>
+      </div>
+      {children}
+      <style jsx global>{`
                 html {
                   box-sizing: border-box;
                 }
@@ -32,7 +32,7 @@ export const Layout: React.FC = ({ children }) => {
                   text-decoration: none;
                 }
               `}</style>
-            <style jsx>{`
+      <style jsx>{`
                 .pageContainer {
                   margin: 0 auto;
                   max-width: 600px;
@@ -47,6 +47,6 @@ export const Layout: React.FC = ({ children }) => {
                   width: 150px;
                 }
           `}</style>
-        </div>
-    )
+    </div>
+  )
 }

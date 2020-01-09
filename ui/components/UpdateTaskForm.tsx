@@ -1,63 +1,63 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import Router from 'next/router'
-import { useUpdateTaskMutation } from '../generated/graphql'
+import {useUpdateTaskMutation} from '../generated/graphql'
 
 interface formState {
-    title: string,
-    id: number
+  title: string,
+  id: number
 }
 
 interface Props {
-    initialInput: formState
+  initialInput: formState
 }
 
-const UpdateTaskForm: React.FC<Props> = ({ initialInput }) => {
+const UpdateTaskForm: React.FC<Props> = ({initialInput}) => {
 
-    const [ formState, setFormState ] = useState<formState>(initialInput)
+  const [formState, setFormState] = useState<formState>(initialInput)
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target
-        setFormState({
-            ...formState,
-            title: value,
-        })
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {value} = e.target
+    setFormState({
+      ...formState,
+      title: value,
+    })
+  }
+
+  const [updateTask] = useUpdateTaskMutation()
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    console.log(formState)
+
+    const result = await updateTask({
+      variables: {
+        input: formState
+      }
+    })
+
+    if (result && result.data && result.data.updateTask) {
+      Router.push('/')
     }
+    console.log(formState)
+  }
 
-    const [updateTask] = useUpdateTaskMutation()
-
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-
-        console.log(formState)
-
-        const result = await updateTask({
-            variables: {
-                input: formState
-            }
-        })
-
-        if (result && result.data && result.data.updateTask) {
-            Router.push('/')
-        }
-        console.log(formState)
-    }
-
-    return (
-        <form onSubmit={onSubmit}>
-            <div className='formField'>
-                <label>Title</label>
-                <div>
-                    <input
-                        value={formState.title}
-                        onChange={onChange}
-                        type='text'
-                        name='title'
-                        className='textInput'
-                    />
-                </div>
-                <button type='submit'>Save</button>
-            </div>
-            <style jsx>{`
+  return (
+    <form onSubmit={onSubmit}>
+      <div className='formField'>
+        <label>Title</label>
+        <div>
+          <input
+            value={formState.title}
+            onChange={onChange}
+            type='text'
+            name='title'
+            className='textInput'
+          />
+        </div>
+        <button type='submit'>Save</button>
+      </div>
+      <style jsx>{`
         .formField {
           margin: 0 0 20px;
         }
@@ -90,8 +90,8 @@ const UpdateTaskForm: React.FC<Props> = ({ initialInput }) => {
           color: white;
         }
       `}</style>
-        </form>
-    )
+    </form>
+  )
 }
 
 export default UpdateTaskForm
